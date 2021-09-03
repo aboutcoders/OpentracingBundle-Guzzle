@@ -6,7 +6,6 @@
          bootstrap="vendor/autoload.php"
          failOnRisky="true"
          failOnWarning="true"
-         printerClass="PHPUnit\Util\TestDox\CliTestDoxPrinter"
 >
     <logging>
         <log type="coverage-text" showOnlySummary="true" target="php://stdout" />
