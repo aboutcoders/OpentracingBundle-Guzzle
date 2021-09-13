@@ -8,6 +8,7 @@ use Auxmoney\OpentracingBundle\Internal\Constant;
 use Auxmoney\OpentracingBundle\Internal\Decorator\RequestSpanning;
 use Auxmoney\OpentracingBundle\Service\Tracing;
 use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Exception\TransferException;
 use GuzzleHttp\Promise\PromiseInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -36,7 +37,7 @@ final class GuzzleRequestSpanning
                     $this->onFulfilled($response);
                     return $response;
                 },
-                function (RequestException $exception) {
+                function (TransferException $exception) {
                     $this->onRejected($exception);
                     throw $exception;
                 }
@@ -50,7 +51,7 @@ final class GuzzleRequestSpanning
         $this->tracing->finishActiveSpan();
     }
 
-    private function onRejected(RequestException $exception): void
+    private function onRejected(TransferException $exception): void
     {
         $this->tracing->logInActiveSpan(
             [
@@ -62,7 +63,7 @@ final class GuzzleRequestSpanning
             ]
         );
 
-        if ($exception->hasResponse()) {
+        if ($exception instanceof RequestException && $exception->hasResponse()) {
             $this->requestSpanning->finish($exception->getResponse()->getStatusCode());
         }
 
